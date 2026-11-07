@@ -5,10 +5,12 @@ from colorama import Fore, Style
 from typing import Annotated
 import json
 import base64
+from http_command_line_tool.commands.environment import env_app
+
 
 app = typer.Typer()
 
-
+app.add_typer(env_app, name="env")
 
 allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 allowed_auth = ["basic", "bearer-token", "api-key"]
@@ -33,7 +35,7 @@ def encode_basic_auth(username: str, password: str) -> str:
 
 
 @app.command()
-def pyreq(method: str, url: str, header: Annotated[list[str], typer.Option("--header", "-H")] = None, query: Annotated[list[str], typer.Option("--query", "-q")] = None, json_body: Annotated[str, typer.Option("--json")] = None, form: Annotated[list[str], typer.Option("--form", "-F")]=None, auth: Annotated[str, typer.Option("--auth")] = None, username: Annotated[str, typer.Option("--username")] = None, password: Annotated[str, typer.Option("--password")] =None, token: Annotated[str, typer.Option("--token")] = None, api_key: Annotated[str, typer.Option("--api-key")] = None, api_key_name: Annotated[str, typer.Option("--api-key-name")] = None):
+def pyreq(method: str, url: str, header: Annotated[list[str], typer.Option("--header", "-H")] = None, query: Annotated[list[str], typer.Option("--query", "-q")] = None, json_body: Annotated[str, typer.Option("--json")] = None, form: Annotated[list[str], typer.Option("--form", "-F")]=None, auth: Annotated[str, typer.Option("--auth")] = None, username: Annotated[str, typer.Option("--username")] = None, password: Annotated[str, typer.Option("--password")] =None, token: Annotated[str, typer.Option("--token")] = None, api_key: Annotated[str, typer.Option("--api-key")] = None, api_key_name: Annotated[str, typer.Option("--api-key-name")] = None, ):
     method = method.upper()
     if method not in allowed_methods:
         print(Fore.RED + "" + method + "is an Invalid Method")
