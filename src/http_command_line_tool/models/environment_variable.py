@@ -16,4 +16,4 @@ class EnvironmentVariable(Base):
 
     environment_id: Mapped[int] = mapped_column(ForeignKey("environments.id"))
 
-    environment = relationship("Environment", back_populates="environment_variables")
+    environment: Mapped["Environment"] = relationship("Environment", back_populates="variables")

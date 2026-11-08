@@ -20,5 +20,5 @@ class Environment(Base):
         default=False
     )
 
-    variables = relationship("EnvironmentVariable", back_populates="environment", cascade="all, delete-orphan")
+    variables: Mapped[list["EnvironmentVariable"]] = relationship("EnvironmentVariable", back_populates="environment", cascade="all, delete-orphan")
     

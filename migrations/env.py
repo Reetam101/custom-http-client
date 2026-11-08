@@ -7,8 +7,7 @@ from alembic import context
 
 from http_command_line_tool.database.base import Base
 
-from http_command_line_tool.models.environment import Environment
-from http_command_line_tool.models.environment_variable import EnvironmentVariable
+from http_command_line_tool.models import EnvironmentVariable, Environment
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
