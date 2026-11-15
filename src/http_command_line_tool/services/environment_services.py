@@ -1,8 +1,12 @@
 from http_command_line_tool.schemas.environment import EnvironmentCreate, EnvironmentResponse
 from http_command_line_tool.models.environment import Environment
+from http_command_line_tool.models.environment_variable import EnvironmentVariable
+from http_command_line_tool.schemas.environment_variable import EnvironmentVariableCreate, EnvironmentVariableResponse
 from sqlalchemy.orm import Session
 from typing import List
 from sqlalchemy import select, update
+from colorama import Fore, Style
+
 
 class EnvironmentService:
     def create_environment(data: EnvironmentCreate, session: Session) -> EnvironmentResponse:
@@ -53,6 +57,44 @@ class EnvironmentService:
             return None
 
         return active_env
+
+    def set_environment_variable(data: EnvironmentVariableCreate, session: Session):
+        data_dict = data.model_dump()
+
+        environment_id = session.execute(select(Environment.id).where(Environment.name == data.env)).scalar_one_or_none()
+
+        if environment_id is None:
+            raise ValueError(f"{Fore.RED} Environment '{data.env}' not found")
+
+        data_dict.pop("env")
+
+        env_variable = EnvironmentVariable(**data_dict, environment_id=environment_id)
+
+        session.add(env_variable)
+        session.commit()
+        session.refresh(env_variable)
+
+        return env_variable
+
+    def get_env_variable(env_name: str, key: str, session: Session):
+        stmt1 = select(Environment.id).where(Environment.name == env_name)
+        environment_id = session.execute(stmt1).scalar_one_or_none()
+
+        if environment_id is None:
+            raise ValueError(f"{Fore.RED} Environment '{env_name}' does not exist yet")
+
+        env_variable_value = session.execute(select(EnvironmentVariable.value).where(EnvironmentVariable.environment_id == environment_id, EnvironmentVariable.key == key)).scalar_one_or_none()
+
+        if env_variable_value is None:
+            raise ValueError(f"{Fore.RED} Key '{key}' doesn't exist in the environment '{env_name}'")
+
+        return env_variable_value
+        
+
+
+
+
+
 
 
         

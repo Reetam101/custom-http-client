@@ -1,6 +1,7 @@
 import typer
 from http_command_line_tool.database.session import get_session
 from http_command_line_tool.schemas.environment import EnvironmentCreate
+from http_command_line_tool.schemas.environment_variable import EnvironmentVariableCreate
 from http_command_line_tool.services.environment_services import EnvironmentService
 from colorama import Fore, Style
 
@@ -63,9 +64,57 @@ def show_current_active_environment():
             typer.echo(f"{Fore.RED} there is no current active environment")
 
 
-# @env_app.command("set")
-# def set_environment_variable(env: str = typer.Argument(..., help="Name of the environment"),
-#                              key: str = typer.Argument(..., help="Key"), 
-#                              value: str = typer.Argument(..., help="value")):
-#     with get_session() as session:
-#         env = EnvironmentService.set_environment_variable()
+@env_app.command("set")
+def set_environment_variable(
+    env: str = typer.Argument(..., help="Name of the environment"),
+    key: str = typer.Argument(..., help="Key"),
+    value: str = typer.Argument(..., help="Value"),
+    is_secret: bool = typer.Option(
+        False, "--secret", "-s",
+        help="Mark this variable as secret"
+    )
+):
+    with get_session() as session:
+        env_variable_data = EnvironmentVariableCreate(
+            key=key,
+            value=value,
+            is_secret=is_secret,
+            env=env
+        )
+
+        env_variable = EnvironmentService.set_environment_variable(
+            env_variable_data, session
+        )
+        if env_variable:
+            display_value = "*" * 8 if is_secret else value
+
+            typer.echo(
+                f"{Fore.GREEN}✓{Style.RESET_ALL} "
+                f"Variable {Fore.CYAN}{key}{Style.RESET_ALL} "
+                f"set successfully in {Fore.YELLOW}{env}{Style.RESET_ALL}"
+            )
+
+            typer.echo(
+                f"  {Fore.WHITE}Value:{Style.RESET_ALL} {display_value}"
+            )
+        else:
+            typer.echo(
+                f"{Fore.RED}✗ Error:{Style.RESET_ALL} "
+                f"Failed to set variable {Fore.CYAN}{key}{Style.RESET_ALL} "
+                f"in {Fore.YELLOW}{env}{Style.RESET_ALL}"
+            )
+
+
+@env_app.command("get")
+def get_environment_variable(env: str = typer.Argument(..., help="Name of the environment you want to use"), 
+                             key: str = typer.Argument(..., help="Name of the key whose value you want to get")):
+    with get_session() as session:
+        env_variable_value = EnvironmentService.get_env_variable(env, key, session)
+
+        if env_variable_value:
+            typer.echo(
+                            f"Variable{Fore.YELLOW}{env}{Style.RESET_ALL}"
+                            f"Value{Fore.CYAN}{key} : '{env_variable_value}'{Style.RESET_ALL} "
+                        )
+            
+            

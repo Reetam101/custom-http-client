@@ -5,6 +5,7 @@ class EnvironmentVariableCreate(BaseModel):
     key: str
     value: str
     is_secret: Optional[bool] = False
+    env: str
 
 class EnvironmentVariableResponse(BaseModel):
     id: int
